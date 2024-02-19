@@ -1,55 +1,61 @@
-import React, { useState, useEffect } from "react";
-import { TextField, Typography, Container } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Container, TextField, Typography } from "@mui/material";
 
 function App() {
-  const [currentTemp, setCurrentTemp] = useState(0);
-  const [cityName, setCityName] = useState("");
+    const [currentTemp, setCurrentTemp] = useState(0);
+    const [cityName, setCityName] = useState("");
+    const apiKey = import.meta.env.VITE_API_KEY;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=513fd790b796317574c291f6b55d47bb`
-        );
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(
+                    `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}`
+                );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch data");
+                }
+                const data = await response.json();
+                setCurrentTemp(data.main.temp - 273.15);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        if (cityName) {
+            fetchData();
         }
-        const data = await response.json();
-        setCurrentTemp(data.main.temp - 273.15);
-      } catch (error) {
-        console.error(error);
-      }
+    }, [cityName, apiKey]);
+
+    const handleKeyDown = (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            setCityName(event.target.value);
+        }
     };
-    fetchData();
-  }, [cityName]);
 
-  const handleInputChange = (event) => {
-    setCityName(event.target.value);
-  };
-
-  return (
-    <Container maxWidth="sm">
-      <Typography variant="h3" gutterBottom>
-        Weather
-      </Typography>
-      <TextField
-        id="textInput"
-        label="Input City Name"
-        variant="outlined"
-        value={cityName}
-        onChange={handleInputChange}
-        fullWidth
-        margin="normal"
-      />
-      <Typography variant="body1" gutterBottom>
-        Current City: {cityName}
-      </Typography>
-      <Typography variant="body1" gutterBottom>
-        Current Temperature: {String(currentTemp).slice(0, 5)}°C
-      </Typography>
-    </Container>
-  );
+    return (
+        <Container maxWidth="sm">
+            <Typography variant="h3" gutterBottom>
+                Weather
+            </Typography>
+            <TextField
+                id="textInput"
+                label="Input City Name"
+                variant="outlined"
+                onKeyDown={handleKeyDown}
+                fullWidth
+                margin="normal"
+            />
+            <Typography variant="body1" gutterBottom>
+                Current City: {cityName}
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+                Current Temperature: {String(currentTemp).slice(0, 5)}°C
+            </Typography>
+        </Container>
+    );
 }
 
 export default App;
