@@ -19,7 +19,7 @@ function App() {
                 const data = await response.json();
                 setCurrentTemp(data.main.temp - 273.15);
             } catch (error) {
-                console.error(error);
+                console.error("Wrong city name maybe?");
             }
         };
 
